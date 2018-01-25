@@ -7,6 +7,7 @@ title = "Jonathan Lamberts"
 # See configuration options for more details: 
 # https://gohugo.io/getting-started/configuration/#toml-configuration
 disableKinds = ["RSS", "taxonomy", "taxonomyTerm"]
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [[menu.main]]
     name = "Home"
     url  = "/"
@@ -17,7 +18,7 @@ disableKinds = ["RSS", "taxonomy", "taxonomyTerm"]
     url  = "about"
     weight = 5
 
-[[menu.main]]
-    name = "Blog"
-    url  = "post/"
-    weight = 10
+# [[menu.main]]
+#     name = "Blog"
+#     url  = "post/"
+#     weight = 10

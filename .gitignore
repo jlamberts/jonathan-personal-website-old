@@ -1,2 +1,10 @@
 node_modules/
 dist/
+.Rproj.user
+.Rhistory
+.Rdata
+.Ruserdata
+blogdown
+.DS_Store
+Thumbs.db
+public/
