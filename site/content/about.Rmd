@@ -9,5 +9,5 @@ Axis Group.  By night I ~~fight crime in a rubber suit~~ enjoy cooking, exercisi
 # Some Things I've Done
 * I gave a lightning talk on Jupyter Notebook tips and tricks at the Atlanta Pydata Meetup.  You can find the talk [here.](https://docs.google.com/presentation/d/1upVXqeTN8E2wm6mo4BR7YojgG6Js3DqLZZmtn32NDE8/edit#slide=id.p)
 
-* I have an upcoming talk on technical financial analysis of cryptocurrencies at the Atlanta Jupyter Users Group.
+* I gave a talk  at the Atlanta Jupyter Users Group on the motivations of Bitcoin and some of the challenges that arise when financially analyzing cryptocurrencies compared to traditional financial assets.  The notebook used in the talk is [here](https://gist.github.com/jlamberts/2abff8be4132ca71b4b2ad0cd4666e57), although I'll probably try to convert it into a full-form blog post.
 
