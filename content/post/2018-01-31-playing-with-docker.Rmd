@@ -1,0 +1,19 @@
+---
+title: Playing With Docker
+author: Jonathan Lamberts
+date: '2018-01-31'
+slug: playing-with-docker
+categories:
+  - Learning
+tags:
+  - Docker
+draft: true
+---
+
+# A Little Bit of Background
+This semester, I'm taking a course on Computer Vision as part of my Master's degree at Georgia Tech.  The course depends heavily on a specific version of the Python [OpenCV library](https://opencv.org/).  As a conda guy, I tend to run multiple versions of Python and multiple versions of libraries on a single machine, so I first tried creating a new conda environment and running that.
+
+Unfortunately, it turns out that, while OpenCV is available on [Conda Forge](https://anaconda.org/conda-forge/opencv), only the Ubuntu version of the package hosted there works properly with FFmpeg.  This meant that I was unable to read and write video on Windows.  Rather than trying to get the conda version to work on Windows (I'm often on Windows machines) I decided to learn something while I fixed the problem and see if I could make a platform-agnostic version of the environment using Docker.
+
+# Learning the Docker Basics
+While I have a vague idea of what Docker is and how it's useful, I'm pretty much a novice when it comes to actually using it.
