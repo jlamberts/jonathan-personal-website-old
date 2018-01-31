@@ -1,6 +1,0 @@
-[build]
-  command = "hugo"
-  publish = "dist"
-
-[context.deploy-preview]
-  command = "hugo --buildFuture"
