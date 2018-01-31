@@ -1,0 +1,6 @@
+---
+title: Home
+--- 
+
+# Jonathan Lamberts
+Hello, and welcome to my first significant attempt at actually making a personal website.  Hopefully this will soon be filled with blog posts and other interesting things.  
