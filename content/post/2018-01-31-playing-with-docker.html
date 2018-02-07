@@ -1,12 +1,14 @@
 ---
 title: Playing With Docker
 author: Jonathan Lamberts
-date: '2018-01-31'
+date: '2018-02-09'
 slug: playing-with-docker
 categories:
   - Learning
 tags:
   - Docker
+  - OpenCV
+  - Computer Vision
 draft: true
 ---
 
@@ -16,8 +18,46 @@ draft: true
 <h1>A Little Bit of Background</h1>
 <p>This semester, I’m taking a course on Computer Vision as part of my Master’s degree at Georgia Tech. The course depends heavily on a specific version of the Python <a href="https://opencv.org/">OpenCV library</a>. As a conda guy, I tend to run multiple versions of Python and multiple versions of libraries on a single machine, so I first tried creating a new conda environment and running that.</p>
 <p>Unfortunately, it turns out that, while OpenCV is available on <a href="https://anaconda.org/conda-forge/opencv">Conda Forge</a>, only the Ubuntu version of the package hosted there works properly with FFmpeg. This meant that I was unable to read and write video on Windows. Rather than trying to get the conda version to work on Windows (I’m often on Windows machines) I decided to learn something while I fixed the problem and see if I could make a platform-agnostic version of the environment using Docker.</p>
+<p>Ultimately, I ended up creating two images to use in the class: one image contains the base requirements for running and submitting assignment code, and the other runs a Jupyter notebook to allow for interactive experimentation when working on assignments. In this post I’ll give an overview of what I learned about Docker and what tripped me up, in the hope that it will help someone else in a similar situation.</p>
 </div>
 <div id="learning-the-docker-basics" class="section level1">
 <h1>Learning the Docker Basics</h1>
-<p>While I have a vague idea of what Docker is and how it’s useful, I’m pretty much a novice when it comes to actually using it.</p>
+<p>When I started, I only had a vague notion that Docker would allow me to keep my library versions consistent across machines and operating systems; I didn’t really know anything about the how docker works. Here’s a brief overview.</p>
+<div id="three-major-parts" class="section level2">
+<h2>Three Major Parts</h2>
+<p>Beginning with writing the specifications for an environment and ending with a fully functioning container that actually runs code in that environment, the docker workflow has 3 main components. A <strong>Dockerfile</strong> contains the specifications necessary to build an environment. An <strong>Image</strong> contains a snapshot of a system that is created using the dockerfile. A <strong>Container</strong> is a specific instance of an image that actually executes your code or lets you interact with the image’s environment (e.g. with a bash shell).</p>
+<div id="the-dockerfile-building-the-image" class="section level3">
+<h3>The Dockerfile: Building the Image</h3>
+<p>Essentially, a Dockerfile contains a list of commands to run while creating an image and setting up that image’s environment. In my case, that code installed the required version of the necessary libraries, and set things up so that I could use a jupyter notebook on my host machine while the notebook ran inside of the container. Let’s take a look at the Jupyter image and break down its parts.</p>
+<pre><code>FROM jlamberts/omscs-cv-base:spring2018
+MAINTAINER Jonathan Lamberts &lt;jonathan.lamberts@gmail.com&gt;
+
+# Install Matplotlib and Jupyter for interaction
+
+RUN conda install -c conda-forge opencv=2.4 matplotlib jupyter
+
+# Expose the notebook port
+EXPOSE 8888
+
+RUN mkdir /usr/sandbox/
+
+ENTRYPOINT [&quot;python&quot;, &quot;/opt/conda/bin/jupyter-notebook&quot;, &quot;--ip=*&quot;, &quot;--allow-root&quot;]
+CMD [&quot;--notebook-dir=/usr/sandbox&quot;]</code></pre>
+</div>
+</div>
+</div>
+<div id="issues-and-solutions" class="section level1">
+<h1>Issues and Solutions</h1>
+<p>I ran into some issues when trying to mount the volume of my local machine to the docker image on windows. The container would start successfully, but the mounted directory would show up as empty in the container. The solution ended up being stupidly simple: I just had to share the drive in the docker settings.<br />
+<img src="/img/docker_share_drive.png" alt="sharing a drive" /> If you’re having a similar issue and this doesn’t fix it, I also found a <a href="https://github.com/docker/for-win/issues/77">github issue</a> reporting that people were able to get it working by unsharing then sharing access to the drive.</p>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>For anyone who’s interested in the final results of my experimentation, you can find the repo with the dockerfiles <a href="https://github.com/jlamberts/OMSCS-CV-Docker">here</a>, the base environment image <a href="https://hub.docker.com/r/jlamberts/omscs-cv-base/">here</a>, and the Jupyter environment image <a href="https://hub.docker.com/r/jlamberts/omscs-cv-jupyter/">here.</a></p>
+</div>
+<div id="other-resources" class="section level1">
+<h1>Other Resources</h1>
+<ul>
+<li>Docker’s <a href="https://docs.docker.com/get-started/">official getting started guide</a> is a nice, readable intro to Docker</li>
+</ul>
 </div>
