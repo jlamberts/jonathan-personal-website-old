@@ -33,7 +33,6 @@ FROM jlamberts/omscs-cv-base:spring2018
 MAINTAINER Jonathan Lamberts <jonathan.lamberts@gmail.com>
 
 # Install Matplotlib and Jupyter for interaction
-
 RUN conda install -c conda-forge opencv=2.4 matplotlib jupyter
 
 # Expose the notebook port
@@ -44,6 +43,21 @@ RUN mkdir /usr/sandbox/
 ENTRYPOINT ["python", "/opt/conda/bin/jupyter-notebook", "--ip=*", "--allow-root"]
 CMD ["--notebook-dir=/usr/sandbox"]
 ```
+First off, you'll notice that I'm loading from another image:   `FROM jlamberts/omscs-cv-base:spring2018`  
+The `FROM` instruction tells docker to load another image and then execute the rest of the commands on top of that.  Remember that an image is just a snapshot, so this essentially unfreezes the snapshot and installs more stuff on top of it.  One particularly nice feature of Docker is that if you load from an image that you don't have locally, it will check on the [Docker Hub](https://hub.docker.com/), pull it from there, and cache it.  In this case, I'm pulling my base image which already has most of the requirements installed; that base image pulls from ContinuumIO's miniconda image.
+
+Next, the line `RUN conda install -c conda-forge opencv=2.4 matplotlib jupyter` uses conda to install Matplotlib, Jupyter, and OpenCV^[Technically since openCV is already installed on the base image, it doesn't actually install here, but including it in the command along with its version prevents it from upgrading and violating the environment requirements].  In general, the `RUN` instruction simply runs a specified command in a shell (bash by default on Linux).
+
+As you may have gathered from the comment, the `EXPOSE 8888` instruction exposes port 8888, used by the notebook, to the host machine.  Since a docker container runs in a VM, there's no network access between the host machine and the container by default.
+
+Finally, the `ENTRYPOINT` and `CMD` instructions tell the image what to do when it is actually run.  Specifically, `ENTRYPOINT` gives the instructions that are always run^[You can actually override it with `--entrypoint` flag, which I found helpful when debugging] when the image is run.  The `CMD` instruction provides default arguments which are then appended to that entrypoint but are overridden if a user passes additional arguments.  So in this case, the `ENTRYPOINT` runs a jupyter notebook, and the `CMD` sets that notebook to run in the /usr/sandbox directory by default.  If a user instead ran the image with the command `docker run jlamberts/omscs-cv-jupyter --notebook-dir=/usr` the notebook would run in the /usr directory instead.
+
+### The Image: Building The Environment
+Now that we have our dockerfile, we can use it to create an image.  When we run the command `docker build -t omscs-cv-jupyter .` in the directory with our dockerfile, Docker will parse the file, pull the necessary dependencies, run the commands in the dockerfile, freeze the final image, and tag it (that's what the `-t` stands for) with the name omscs-cv-jupyter.  After this runs, you can type `docker images` and you'll see that it's included in the list of images available on your machine: 
+
+![images!](/img/docker_images.png)
+
+You might also notice that several other
 
 # Issues and Solutions
 I ran into some issues when trying to mount the volume of my local machine to the docker image on windows.  The container would start successfully, but the mounted directory would show up as empty in the container.  The solution ended up being stupidly simple: I just had to share the drive in the docker settings.  

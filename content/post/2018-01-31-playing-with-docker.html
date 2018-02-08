@@ -33,7 +33,6 @@ draft: true
 MAINTAINER Jonathan Lamberts &lt;jonathan.lamberts@gmail.com&gt;
 
 # Install Matplotlib and Jupyter for interaction
-
 RUN conda install -c conda-forge opencv=2.4 matplotlib jupyter
 
 # Expose the notebook port
@@ -43,6 +42,20 @@ RUN mkdir /usr/sandbox/
 
 ENTRYPOINT [&quot;python&quot;, &quot;/opt/conda/bin/jupyter-notebook&quot;, &quot;--ip=*&quot;, &quot;--allow-root&quot;]
 CMD [&quot;--notebook-dir=/usr/sandbox&quot;]</code></pre>
+<p>First off, you’ll notice that I’m loading from another image: <code>FROM jlamberts/omscs-cv-base:spring2018</code><br />
+The <code>FROM</code> instruction tells docker to load another image and then execute the rest of the commands on top of that. Remember that an image is just a snapshot, so this essentially unfreezes the snapshot and installs more stuff on top of it. One particularly nice feature of Docker is that if you load from an image that you don’t have locally, it will check on the <a href="https://hub.docker.com/">Docker Hub</a>, pull it from there, and cache it. In this case, I’m pulling my base image which already has most of the requirements installed; that base image pulls from ContinuumIO’s miniconda image.</p>
+<p>Next, the line <code>RUN conda install -c conda-forge opencv=2.4 matplotlib jupyter</code> uses conda to install Matplotlib, Jupyter, and OpenCV<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. In general, the <code>RUN</code> instruction simply runs a specified command in a shell (bash by default on Linux).</p>
+<p>As you may have gathered from the comment, the <code>EXPOSE 8888</code> instruction exposes port 8888, used by the notebook, to the host machine. Since a docker container runs in a VM, there’s no network access between the host machine and the container by default.</p>
+<p>Finally, the <code>ENTRYPOINT</code> and <code>CMD</code> instructions tell the image what to do when it is actually run. Specifically, <code>ENTRYPOINT</code> gives the instructions that are always run<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> when the image is run. The <code>CMD</code> instruction provides default arguments which are then appended to that entrypoint but are overridden if a user passes additional arguments. So in this case, the <code>ENTRYPOINT</code> runs a jupyter notebook, and the <code>CMD</code> sets that notebook to run in the /usr/sandbox directory by default. If a user instead ran the image with the command <code>docker run jlamberts/omscs-cv-jupyter --notebook-dir=/usr</code> the notebook would run in the /usr directory instead.</p>
+</div>
+<div id="the-image-building-the-environment" class="section level3">
+<h3>The Image: Building The Environment</h3>
+<p>Now that we have our dockerfile, we can use it to create an image. When we run the command <code>docker build -t omscs-cv-jupyter .</code> in the directory with our dockerfile, Docker will parse the file, pull the necessary dependencies, run the commands in the dockerfile, freeze the final image, and tag it (that’s what the <code>-t</code> stands for) with the name omscs-cv-jupyter. After this runs, you can type <code>docker images</code> and you’ll see that it’s included in the list of images available on your machine:</p>
+<div class="figure">
+<img src="/img/docker_images.png" alt="images!" />
+<p class="caption">images!</p>
+</div>
+<p>You might also notice that several other</p>
 </div>
 </div>
 </div>
@@ -60,4 +73,11 @@ CMD [&quot;--notebook-dir=/usr/sandbox&quot;]</code></pre>
 <ul>
 <li>Docker’s <a href="https://docs.docker.com/get-started/">official getting started guide</a> is a nice, readable intro to Docker</li>
 </ul>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Technically since openCV is already installed on the base image, it doesn’t actually install here, but including it in the command along with its version prevents it from upgrading and violating the environment requirements<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>You can actually override it with <code>--entrypoint</code> flag, which I found helpful when debugging<a href="#fnref2">↩</a></p></li>
+</ol>
 </div>
