@@ -4,7 +4,7 @@ title: About Me
 
 I'm a computer scientist and data scientist who learns best by poking things and seeing what happens.  I studied Industrial Engineering at Georgia Tech
 as an undergrad and I'm in the process of getting my MS in Computer Science at Georgia Tech's [OMSCS program](http://www.omscs.gatech.edu/).  During the day I work as a Data Science consultant at 
-Axis Group.  By night I ~~fight crime in a rubber suit~~ enjoy cooking, exercising, reading, video games, and board games.  If you're interested in my resume, you can find it [here](/pdf/resume.pdf).
+Axis Group in Atlanta, Ga.  By night I ~~fight crime in a rubber suit~~ enjoy cooking, exercising, reading, video games, and board games.  If you're interested in my resume, you can find it [here](/pdf/resume.pdf).
 
 # Some Things I've Done
 * I gave a lightning talk on Jupyter Notebook tips and tricks at the Atlanta Pydata Meetup.  You can find the talk [here.](https://docs.google.com/presentation/d/1upVXqeTN8E2wm6mo4BR7YojgG6Js3DqLZZmtn32NDE8/edit#slide=id.p)

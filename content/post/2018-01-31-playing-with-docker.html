@@ -93,18 +93,11 @@ CMD [&quot;--notebook-dir=/usr/sandbox&quot;]</code></pre>
 <li>The <code>-it</code> flag tells the container to run <strong>i</strong>nteractively and to allocate a <strong>t</strong>ty, passing messages between the container and my terminal.<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a></li>
 <li>The <code>--rm</code> flag cleans up after the container finishes running, removing its filesystem and preventing a bunch of old containers from sticking around taking up space.</li>
 <li><code>-p 8888:8888</code> maps the container’s port 8888 (the default Jupyter Notebook port) to my local port 8888, allowing me to open the notebook server in my web browser at localhost:8888.</li>
-<li>the <code>-v</code> flag mounts a <strong>v</strong>olume on the host machine to one in the container. In this case, my C://users/jlamberts/ps02 directory, containing a homework assignment, maps to the container’s /usr/sandbox/ps02 directory, which is where the notebook runs by default. This means I’ll be able to save my work.</li>
+<li>the <code>-v</code> flag mounts a <strong>v</strong>olume on the host machine to one in the container. In this case, my C://users/jlamberts/documents/ps02 directory, containing a homework assignment, maps to the container’s /usr/sandbox/ps02 directory, which is where the notebook runs by default. This means I’ll be able to save my work.</li>
 </ul>
-</div>
-</div>
-<div id="an-issue-and-its-solution" class="section level1">
-<h1>An Issue and its Solution</h1>
-<p>I ran into some issues when trying to mount the volume of my local machine to the docker image on windows. The container would start successfully, but the mounted directory would show up as empty in the container. The solution ended up being stupidly simple: I just had to share the drive in the docker settings.<br />
+<p>The final result: a Jupyter notebook server which runs inside of a container and gives me access to the OMSCS CV environment and allows me to use it with local files. <img src="/img/docker_jupyter.png" /> # An Issue and its Solution I ran into some issues when trying to mount the volume of my local machine to the docker image on windows. The container would start successfully, but the mounted directory would show up as empty in the container. The solution ended up being stupidly simple: I just had to share the drive in the docker settings.<br />
 <img src="/img/docker_share_drive.png" alt="sharing a drive" /> If you’re having a similar issue and this doesn’t fix it, I also found a <a href="https://github.com/docker/for-win/issues/77">github issue</a> reporting that people were able to get it working by unsharing then sharing access to the drive.</p>
 </div>
-<div id="conclusion" class="section level1">
-<h1>Conclusion</h1>
-<p>For anyone who’s interested in the final results of my experimentation, you can find the repo with the dockerfiles [here], the base environment image <a href="https://hub.docker.com/r/jlamberts/omscs-cv-base/">here</a>, and the Jupyter environment image <a href="https://hub.docker.com/r/jlamberts/omscs-cv-jupyter/">here.</a></p>
 </div>
 <div id="links-and-resources" class="section level1">
 <h1>Links and Resources</h1>

@@ -115,16 +115,15 @@ This has a few additional arguments passed to `docker run`, so I'll explain each
 * The `-it` flag tells the container to run **i**nteractively and to allocate a **t**ty, passing messages between the container and my terminal.^[These can also be as seperate `-i` and `-t` flags.]
 * The `--rm` flag cleans up after the container finishes running, removing its filesystem and preventing a bunch of old containers from sticking around taking up space.
 * `-p 8888:8888` maps the container's port 8888 (the default Jupyter Notebook port) to my local port 8888, allowing me to open the notebook server in my web browser at localhost:8888.
-* the `-v` flag mounts a **v**olume on the host machine to one in the container.  In this case, my C://users/jlamberts/ps02 directory, containing a homework assignment, maps to the container's /usr/sandbox/ps02 directory, which is where the notebook runs by default.  This means I'll be able to save my work.
+* the `-v` flag mounts a **v**olume on the host machine to one in the container.  In this case, my C://users/jlamberts/documents/ps02 directory, containing a homework assignment, maps to the container's /usr/sandbox/ps02 directory, which is where the notebook runs by default.  This means I'll be able to save my work.
 
-
+The final result: a Jupyter notebook server which runs inside of a container and gives me access to the OMSCS CV environment and allows me to use it with local files.
+![](/img/docker_jupyter.png)
 # An Issue and its Solution
 I ran into some issues when trying to mount the volume of my local machine to the docker image on windows.  The container would start successfully, but the mounted directory would show up as empty in the container.  The solution ended up being stupidly simple: I just had to share the drive in the docker settings.  
 ![sharing a drive](/img/docker_share_drive.png)
 If you're having a similar issue and this doesn't fix it, I also found a [github issue](https://github.com/docker/for-win/issues/77) reporting that people were able to get it working by unsharing then sharing access to the drive.
 
-# Conclusion
-For anyone who's interested in the final results of my experimentation, you can find the repo with the dockerfiles [here], the base environment image [here](https://hub.docker.com/r/jlamberts/omscs-cv-base/), and the Jupyter environment image [here.](https://hub.docker.com/r/jlamberts/omscs-cv-jupyter/)
 
 # Links and Resources
 * [My repo with the dockerfiles for each image](https://github.com/jlamberts/OMSCS-CV-Docker)
