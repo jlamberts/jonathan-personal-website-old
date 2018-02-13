@@ -1,15 +1,17 @@
 ---
-title: Playing With Docker
+title: "Playing With Docker: an Overview and Example"
 author: Jonathan Lamberts
-date: '2018-02-09'
+date: '2018-02-13'
 slug: playing-with-docker
 categories:
   - Learning
+  - Examples
 tags:
   - Docker
   - OpenCV
   - Computer Vision
-draft: true
+  - Jupyter
+draft: false
 ---
 
 # A Little Bit of Background
@@ -17,15 +19,17 @@ This semester, I'm taking a course on Computer Vision as part of my Master's deg
 
 Unfortunately, it turns out that, while OpenCV is available on [Conda Forge](https://anaconda.org/conda-forge/opencv), only the Ubuntu version of the package hosted there works properly with FFmpeg.  This meant that I was unable to read and write video on Windows.  Rather than trying to get the conda version to work on Windows (I'm often on Windows machines) I decided to learn something while I fixed the problem and see if I could make a platform-agnostic version of the environment using Docker.  
 
-Ultimately, I ended up creating two images to use in the class: one image contains the base requirements for running and submitting assignment code, and the other runs a Jupyter notebook to allow for interactive experimentation when working on assignments.  In this post I'll give an overview of what I learned about Docker and what tripped me up, in the hope that it will help someone else in a similar situation.  
+Ultimately, I ended up creating two images to use in the class: one image contains the base requirements for running and submitting assignment code, and the other runs a Jupyter notebook to allow for interactive experimentation when working on assignments.  In this post I'll give an overview of what I learned about Docker and what tripped me up, in the hope that it will help someone else in a similar situation.  I'll also use the images I created for my class as examples to explain some Docker concepts.
 
 # Learning the Docker Basics
-When I started, I only had a vague notion that Docker would allow me to keep my library versions consistent across machines and operating systems; I didn't really know anything about the how docker works.  Here's a brief overview.
+When I started, I only had a vague notion that Docker would allow me to keep my library versions consistent across machines and operating systems; I didn't really know anything about the how Docker works.  Here's a brief overview.
 
-## Three Major Parts
-Beginning with writing the specifications for an environment and ending with a fully functioning container that actually runs code in that environment, the docker workflow has 3 main components.  A **Dockerfile** contains the specifications necessary to build an environment.  An **Image** contains a snapshot of a system that is created using the dockerfile.  A **Container** is a specific instance of an image that actually executes your code or lets you interact with the image's environment (e.g. with a bash shell).
+## The Docker Workflow
+Beginning with writing the specifications for an environment and ending with a fully functioning container that actually runs code in that environment, the docker workflow has 3 main components.  A **Dockerfile** contains the specifications necessary to build an environment.  An **Image** contains a snapshot of a system that is created using the dockerfile.  A **Container** is a specific instance of an image that actually executes your code or lets you interact with the image's environment (e.g. with a bash shell).  Docker also provides the **Docker Hub**, a public registry of images which can be run directly or used as the basis for a new image.^[It's also possible to run your own registry of images.  Docker Hub is just the public one provided by Docker.]
 
-### The Dockerfile: Building the Image
+![*A simplified version of Docker's workflow*](/img/Docker Flow.png)
+
+## The Dockerfile: Building the Image
 Essentially, a Dockerfile contains a list of commands to run while creating an image and setting up that image's environment.  In my case,  that code installed the required version of the necessary libraries, and set things up so that I could use a jupyter notebook on my host machine while the notebook ran inside of the container.  Let's take a look at the Jupyter image  and break down its parts.
 
 ```
@@ -43,29 +47,87 @@ RUN mkdir /usr/sandbox/
 ENTRYPOINT ["python", "/opt/conda/bin/jupyter-notebook", "--ip=*", "--allow-root"]
 CMD ["--notebook-dir=/usr/sandbox"]
 ```
-First off, you'll notice that I'm loading from another image:   `FROM jlamberts/omscs-cv-base:spring2018`  
+First off, you'll notice that I'm loading from another image:   
+
+`FROM jlamberts/omscs-cv-base:spring2018`  
+
 The `FROM` instruction tells docker to load another image and then execute the rest of the commands on top of that.  Remember that an image is just a snapshot, so this essentially unfreezes the snapshot and installs more stuff on top of it.  One particularly nice feature of Docker is that if you load from an image that you don't have locally, it will check on the [Docker Hub](https://hub.docker.com/), pull it from there, and cache it.  In this case, I'm pulling my base image which already has most of the requirements installed; that base image pulls from ContinuumIO's miniconda image.
 
-Next, the line `RUN conda install -c conda-forge opencv=2.4 matplotlib jupyter` uses conda to install Matplotlib, Jupyter, and OpenCV^[Technically since openCV is already installed on the base image, it doesn't actually install here, but including it in the command along with its version prevents it from upgrading and violating the environment requirements].  In general, the `RUN` instruction simply runs a specified command in a shell (bash by default on Linux).
+Next, the line 
+
+`RUN conda install -c conda-forge opencv=2.4 matplotlib jupyter` 
+
+uses conda to install Matplotlib, Jupyter, and OpenCV^[Technically since openCV is already installed on the base image, it doesn't actually install here, but including it in the command along with its version prevents it from upgrading and violating the environment requirements].  In general, the `RUN` instruction simply runs a specified command in a shell (bash by default on Linux).
 
 As you may have gathered from the comment, the `EXPOSE 8888` instruction exposes port 8888, used by the notebook, to the host machine.  Since a docker container runs in a VM, there's no network access between the host machine and the container by default.
 
-Finally, the `ENTRYPOINT` and `CMD` instructions tell the image what to do when it is actually run.  Specifically, `ENTRYPOINT` gives the instructions that are always run^[You can actually override it with `--entrypoint` flag, which I found helpful when debugging] when the image is run.  The `CMD` instruction provides default arguments which are then appended to that entrypoint but are overridden if a user passes additional arguments.  So in this case, the `ENTRYPOINT` runs a jupyter notebook, and the `CMD` sets that notebook to run in the /usr/sandbox directory by default.  If a user instead ran the image with the command `docker run jlamberts/omscs-cv-jupyter --notebook-dir=/usr` the notebook would run in the /usr directory instead.
+Finally, the `ENTRYPOINT` and `CMD` instructions tell the image what to do when it is actually run.  Specifically, `ENTRYPOINT` gives the instructions that are always run^[You can actually override it with `--entrypoint` flag, which I found helpful when debugging] when the image is run.  The `CMD` instruction provides default arguments which are then appended to that entrypoint but are overridden if a user passes additional arguments.  So
 
-### The Image: Building The Environment
-Now that we have our dockerfile, we can use it to create an image.  When we run the command `docker build -t omscs-cv-jupyter .` in the directory with our dockerfile, Docker will parse the file, pull the necessary dependencies, run the commands in the dockerfile, freeze the final image, and tag it (that's what the `-t` stands for) with the name omscs-cv-jupyter.  After this runs, you can type `docker images` and you'll see that it's included in the list of images available on your machine: 
+`docker run jlamberts/omscs-cv-jupyter`
 
-![images!](/img/docker_images.png)
+runs the notebook with /usr/sandbox as the base directory.  Running with an additional argument overrides the `CMD`, so 
 
-You might also notice that several other
+`docker run jlamberts/omscs-cv-jupyter --notebook-dir=/usr` 
 
-# Issues and Solutions
+runs the notebook in the /usr directory instead.  Either way, the `ENTRYPOINT` commands are executed.
+
+## The Image: Building The Environment
+Now that we have our dockerfile, we can use it to create an image.  When we run the command 
+
+`docker build -t omscs-cv-jupyter .` 
+
+in the directory with our dockerfile, Docker will parse the file, pull the necessary dependencies, run the commands in the dockerfile, freeze the final image, and tag it (that's what the `-t` stands for) with the name omscs-cv-jupyter.  After this runs, you can type 
+
+`docker images` 
+
+and you'll see that it's included in the list of images available on your machine: 
+
+![](/img/docker_images.png)
+
+You might notice that several other images and repositories show up in the list.  Whenever you load `FROM` an image in a dockerfile, docker checks locally for that image, and pulls it from Docker Hub if it can't find it.  It then caches the image locally on your system so that you can keep building your image without needing to redownload its dependencies; in this case, the omscs-cv-jupyter image requires omscs-cv-base, which in turn requires continuum/miniconda. 
+
+So what if you want to use your image from other machines? That was the whole reason I wanted to use Docker in the first place, after all.  Once the image is built, it's fairly straightforward to push it to a public repository so you can use it wherever you want.  Assuming you already have an account at [Docker Cloud](https://cloud.docker.com),
+
+`docker login` 
+
+will allow you to log in to your account.  From there, 
+
+`docker tag jlamberts/omscs-cv-jupyter:latest`  
+
+will associate the image we just created with the jlamberts/omscs-cv-jupyter repository, with the *latest* tag. Finally,
+
+`docker push jlamberts/omscs-cv-jupyter:latest`  
+
+will push the tagged image to a public repository on Docker Hub.
+
+## Running a Container
+Once the image is built, running it locally is pretty straightforward.  `docker run [image_name]` will check locally for an image.  If it finds the image, it will create and run a container based on that image; if not, it will check Docker Hub and automatically download it before creating the container.
+
+One important thing to know about Docker containers is that they are transient: they are designed to be created and destroyed and nothing that happens inside of a container affects the base image.  This allows for convenient sandbox environments, as well as the ability to quickly scale services by creating multiple containers from a single image and load-balancing between them.  Since the containers are isolated from the host machine, they're also portable across environments and operating systems.
+
+
+In my specific case, I'm more interested in containers' portability than scalability.  To use a notebook in my CV environment, I run
+
+`docker run -it --rm -p 8888:8888 -v /c/users/jlamberts/documents/ps02:/usr/sandbox/ps02 jlamberts/omscs-cv-jupyter`
+
+This has a few additional arguments passed to `docker run`, so I'll explain each one.
+
+* The `-it` flag tells the container to run **i**nteractively and to allocate a **t**ty, passing messages between the container and my terminal.^[These can also be as seperate `-i` and `-t` flags.]
+* The `--rm` flag cleans up after the container finishes running, removing its filesystem and preventing a bunch of old containers from sticking around taking up space.
+* `-p 8888:8888` maps the container's port 8888 (the default Jupyter Notebook port) to my local port 8888, allowing me to open the notebook server in my web browser at localhost:8888.
+* the `-v` flag mounts a **v**olume on the host machine to one in the container.  In this case, my C://users/jlamberts/ps02 directory, containing a homework assignment, maps to the container's /usr/sandbox/ps02 directory, which is where the notebook runs by default.  This means I'll be able to save my work.
+
+
+# An Issue and its Solution
 I ran into some issues when trying to mount the volume of my local machine to the docker image on windows.  The container would start successfully, but the mounted directory would show up as empty in the container.  The solution ended up being stupidly simple: I just had to share the drive in the docker settings.  
 ![sharing a drive](/img/docker_share_drive.png)
 If you're having a similar issue and this doesn't fix it, I also found a [github issue](https://github.com/docker/for-win/issues/77) reporting that people were able to get it working by unsharing then sharing access to the drive.
 
 # Conclusion
-For anyone who's interested in the final results of my experimentation, you can find the repo with the dockerfiles [here](https://github.com/jlamberts/OMSCS-CV-Docker), the base environment image [here](https://hub.docker.com/r/jlamberts/omscs-cv-base/), and the Jupyter environment image [here.](https://hub.docker.com/r/jlamberts/omscs-cv-jupyter/)
+For anyone who's interested in the final results of my experimentation, you can find the repo with the dockerfiles [here], the base environment image [here](https://hub.docker.com/r/jlamberts/omscs-cv-base/), and the Jupyter environment image [here.](https://hub.docker.com/r/jlamberts/omscs-cv-jupyter/)
 
-# Other Resources
+# Links and Resources
+* [My repo with the dockerfiles for each image](https://github.com/jlamberts/OMSCS-CV-Docker)
+* [The omscs-cv-base image on Docker Hub](https://hub.docker.com/r/jlamberts/omscs-cv-base/)
+* [The omscs-cv-jupyter image on Docker Hub](https://hub.docker.com/r/jlamberts/omscs-cv-jupyter/)
 * Docker's [official getting started guide](https://docs.docker.com/get-started/) is a nice, readable intro to Docker
