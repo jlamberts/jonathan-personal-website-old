@@ -128,7 +128,6 @@ If you're having a similar issue and this doesn't fix it, I also found a [github
 # Conclusion
 In the end, this docker setup worked great and let me use OpenCV the way that I needed to for my assignment.  After getting over the initial hurdle of understanding how to write a dockerfile, I think containers could potentially be really useful for some of the one-off analyses I tend to do in notebooks.  I'll probably experiment some more with this and will write a follow-up post if I find any neat tricks.  In the meantime, feel free to shoot me an email if you have any questions or comments.
 
-I'm 
 # Links and Resources
 * [My repo with the dockerfiles for each image](https://github.com/jlamberts/OMSCS-CV-Docker)
 * [The omscs-cv-base image on Docker Hub](https://hub.docker.com/r/jlamberts/omscs-cv-base/)
