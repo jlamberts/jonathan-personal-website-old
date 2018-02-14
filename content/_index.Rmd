@@ -3,4 +3,4 @@ title: Home
 --- 
 
 # Jonathan Lamberts
-Hi!  I'm Jonathan.  I'm a Data Scientist at Axis Group in Atlanta, GA.  I find myself doing things the hard but interesting way; my goal is to write about those things here to make them a little less hard and a little more interesting for everyone else.
+Hi!  I'm Jonathan.  I'm a Data Scientist at Axis Group in Atlanta, GA.  I often find myself doing things the hard but interesting way. My goal for this site is to write about those things to make them a little bit less hard and a little bit more interesting for everyone else.  
